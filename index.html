@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padrino | Experiências Líquidas</title>
+    <link rel="icon" href="logo_sem_texto.png" type="image/png">
+    <style>
+        /* ==========================================================================
+           1. VARIÁVEIS E CONFIGURAÇÕES GERAIS
+           ========================================================================== */
+        :root {
+            --bg-color: #F5F1EA;
+            --text-color: #111111;
+            --accent-color: #333333;
+            --font-mono: 'Courier New', Courier, monospace;
+            --fluid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Esconde o cursor padrão para usar o customizado */
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 20px 20px; /* Textura sutil de caderno/laboratório */
+        }
+
+        ::selection {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        /* ==========================================================================
+           2. CURSOR CUSTOMIZADO E UTILITÁRIOS
+           ========================================================================== */
+        #custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(17, 17, 17, 0.1);
+            border: 2px solid var(--text-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-radius 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        /* Efeito quando passa sobre links/botões */
+        body.hovering #custom-cursor {
+            width: 40px;
+            height: 40px;
+            background-color: var(--text-color);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; /* Forma orgânica */
+            animation: morph-cursor 3s infinite linear;
+        }
+
+        @keyframes morph-cursor {
+            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+            100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        }
+
+        /* Filtro SVG para Tensão Superficial (Gooey Effect) */
+        .gooey-container {
+            filter: url('#goo');
+        }
+
+        /* ==========================================================================
+           3. NAVEGAÇÃO
+           ========================================================================== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 3%; /* Margem reduzida para empurrar mais para os cantos */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+            color: var(--bg-color); /* Fica branco sobre o fundo preto e preto sobre o fundo branco */
+        }
+
+        .logo-nav {
+            width: 150px;
+            filter: invert(1); /* Inverte a imagem preta para branca para o blend mode */
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem; /* Reduzido o espaço entre os itens do menu */
+        }
+
+        nav a {
+            text-decoration: none;
+            color: inherit;
+            font-weight: bold;
+            font-size: 0.85rem; /* Fonte menor */
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            padding: 5px 10px;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background-color: currentColor;
+            transition: all 0.4s var(--fluid-easing);
+            transform: translateX(-50%);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* ==========================================================================
+           4. ANIMAÇÃO DE TRANSIÇÃO LÍQUIDA (OVERLAY)
+           ========================================================================== */
+        .liquid-overlay {
+            position: fixed;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 120vh;
+            background-color: var(--text-color);
+            z-index: 1000;
+            pointer-events: none;
+            transition: top 1s var(--fluid-easing);
+            border-top-left-radius: 50% 20%;
+            border-top-right-radius: 50% 20%;
+        }
+
+        .liquid-overlay.active {
+            top: -10%;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 50% 20%;
+            border-bottom-right-radius: 50% 20%;
+        }
+        
+        .liquid-overlay.leaving {
+            top: -120%;
+        }
+
+        /* ==========================================================================
+           5. SEÇÕES (HERO, ALQUIMISTA, CATÁLOGO)
+           ========================================================================== */
+        section {
+            min-height: 100vh;
+            padding: 10vh 5%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* --- HERO --- */
+        #inicio {
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .hero-blob {
+            position: absolute;
+            width: 60vw;
+            height: 60vw;
+            max-width: 800px;
+            max-height: 800px;
+            background-color: rgba(17, 17, 17, 0.08); /* Opacidade aumentada para ficar mais visível */
+            z-index: -1;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            animation: fluid-blob 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes fluid-blob {
+            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(0deg) scale(1); }
+            50% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; transform: rotate(180deg) scale(1.05); }
+            100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(360deg) scale(1); }
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .hero-logo-icon {
+            width: 280px; /* Tamanho aumentado para maior destaque */
+            margin-bottom: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: normal;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-style: italic;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+        }
+
+        /* Botão Líquido */
+        .btn-organic {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s;
+            /* Forma inicial levemente irregular */
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; 
+        }
+
+        .btn-organic::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            background-color: var(--text-color);
+            z-index: -1;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            transform: scale(0);
+            transition: transform 0.5s var(--fluid-easing), border-radius 0.5s ease;
+        }
+
+        .btn-organic:hover::before {
+            transform: scale(1);
+            animation: blob-btn 3s infinite alternate;
+        }
+
+        @keyframes blob-btn {
+            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            100% { border-radius: 60% 40% 30% 70% / 50% 60% 50% 40%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* --- O ALQUIMISTA --- */
+        #alquimista {
+            background-color: #EBE6DC; /* Tom levemente mais escuro para quebra */
+            border-radius: 10% 10% 0 0 / 5% 5% 0 0; /* Borda superior orgânica */
+            margin-top: -5vh; /* Sobreposição fluida */
+        }
+
+        .alchemist-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            max-width: 1200px;
+            align-items: center;
+        }
+
+        .journal-text {
+            border-left: 2px dashed var(--accent-color);
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .journal-text::before {
+            content: '[NOTAS DE CAMPO]';
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        .journal-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .journal-text p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            opacity: 0.85;
+        }
+
+        .journal-image {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: url('logo_sem_texto.png') center/contain no-repeat;
+            opacity: 0.15;
+            filter: blur(1px);
+        }
+        
+        .journal-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid var(--text-color);
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            animation: morph-border 10s infinite alternate linear;
+        }
+
+        @keyframes morph-border {
+            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            100% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
+        }
+
+        /* --- CATÁLOGO DE EXPERIMENTOS --- */
+        #experimentos {
+            flex-direction: column;
+            gap: 5rem;
+            padding-top: 15vh;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            position: relative;
+            margin-bottom: 4rem;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 2px;
+            background: var(--text-color);
+            margin: 1rem auto 0;
+            border-radius: 50%; /* Ligeiramente orgânico */
+        }
+
+        .experiment-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s, transform 1s var(--fluid-easing);
+        }
+
+        .experiment-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .experiment-card:nth-child(even) {
+            grid-template-columns: 1fr 1fr;
+            direction: rtl; /* Inverte o layout */
+        }
+        .experiment-card:nth-child(even) > * {
+            direction: ltr; /* Restaura a direção do texto */
+        }
+
+        .experiment-visual {
+            position: relative;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .experiment-visual img {
+            width: auto;
+            height: 70%;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        /* Estilo da Etiqueta Técnica (Rótulo) */
+        .technical-label {
+            border: 1px solid var(--text-color);
+            padding: 2rem;
+            position: relative;
+            background-color: var(--bg-color);
+            /* Borda orgânica simulando papel cortado irregularmente */
+            border-radius: 2px 15px 3px 10px / 10px 2px 15px 4px;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.05);
+        }
+
+        .label-header-txt {
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .label-grid-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .label-row {
+            display: flex;
+            border-bottom: 1px dotted rgba(17,17,17,0.3);
+            padding-bottom: 0.2rem;
+        }
+
+        .label-key {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .label-value {
+            font-style: italic;
+        }
+
+        .label-full-row {
+            grid-column: 1 / -1;
+        }
+
+        .checkbox-group {
+            margin-top: 1rem;
+            grid-column: 1 / -1;
+        }
+        
+        .checkbox-group p {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .check-items {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .box {
+            width: 15px;
+            height: 15px;
+            border: 1px solid var(--text-color);
+            display: inline-block;
+            border-radius: 2px;
+        }
+        .box.checked {
+            background-color: var(--text-color);
+            border-radius: 50%; /* Checkbox líquido */
+        }
+
+        .sensorial-notes {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .purchase-action {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        /* ==========================================================================
+           6. FOOTER
+           ========================================================================== */
+        footer {
+            padding: 4rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(17,17,17,0.1);
+            margin-top: 5rem;
+        }
+
+        /* ==========================================================================
+           7. RESPONSIVIDADE
+           ========================================================================== */
+        @media (max-width: 768px) {
+            .alchemist-grid, .experiment-card, .experiment-card:nth-child(even) {
+                grid-template-columns: 1fr;
+                direction: ltr;
+            }
+            .journal-image {
+                height: 300px;
+                order: -1;
+            }
+            nav ul {
+                display: none; /* Simplificação para mobile, em um site real teria menu hambúrguer */
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .label-grid-data {
+                grid-template-columns: 1fr;
+            }
+            #custom-cursor {
+                display: none; /* Remove custom cursor em touch */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Filtro SVG para efeitos líquidos -->
+    <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+      </filter>
+    </svg>
+
+    <!-- Cursor customizado -->
+    <div id="custom-cursor"></div>
+
+    <!-- Overlay para transição de página fluida -->
+    <div class="liquid-overlay" id="transition-overlay"></div>
+
+    <!-- Cabeçalho -->
+    <header>
+        <img src="logo_com_texto.png" alt="Padrino" class="logo-nav">
+        <nav>
+            <ul>
+                <li><a href="#inicio" class="nav-link">Gênese</a></li>
+                <li><a href="#alquimista" class="nav-link">O Laboratório</a></li>
+                <li><a href="#experimentos" class="nav-link">Amostras</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Seção 1: Hero -->
+    <section id="inicio">
+        <div class="hero-blob"></div>
+        <div class="hero-content">
+            <img src="logo_sem_texto-removebg-preview.png" alt="Logótipo Padrino" class="hero-logo-icon">
+            <h1 class="hero-title">ALQUIMIA BOTÂNICA.</h1>
+            <p class="hero-subtitle">A precisão do laboratório revelando a essência mais pura e indomável da terra.</p>
+            <div class="gooey-container">
+                <a href="#experimentos" class="btn-organic nav-link">Inspecionar Lotes</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção 2: O Alquimista -->
+    <section id="alquimista">
+        <div class="alchemist-grid">
+            <div class="journal-text reveal-element">
+                <h2>O Método Orgânico</h2>
+                <p>Nós não fabricamos bebidas; nós induzimos reações ecológicas em ambientes controlados. Cada garrafa de Padrino é o resultado de uma tensão meticulosamente calculada entre a ciência da destilação e a imprevisibilidade dos elementos crus.</p>
+                <p>Nossos laboratórios são apiários integrados e estufas escuras. Nossos instrumentos são favos de mel cru, caldos em fermentação selvagem, madeiras, raízes e o tempo. Do despertar do hidromel à purificação da cachaça, buscamos a imperfeição perfeita, catalogando os resultados como registros biológicos de um ecossistema engarrafado.</p>
+            </div>
+            <div class="journal-image reveal-element">
+                <!-- Imagem abstrata/logo de fundo -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção 3: Catálogo -->
+    <section id="experimentos">
+        <h2 class="section-title">Lotes Catalogados</h2>
+
+        <!-- Experimento 01 -->
+        <div class="experiment-card scroll-reveal">
+            <div class="experiment-visual">
+                <!-- Usando o logo sem texto como representação visual abstrata da garrafa/líquido -->
+                <img src="logo_sem_texto.png" alt="Garrafa Experimento 01" style="filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));">
+            </div>
+            <div class="technical-label">
+                <div class="label-header-txt">
+                    <span>PADRINO</span>
+                    <span style="font-size: 0.8rem; font-weight: normal; margin-top:auto;">Experiências Líquidas</span>
+                </div>
+                
+                <div class="label-grid-data">
+                    <div class="label-row"><span class="label-key">BEBIDA:</span><span class="label-value">Destilado de Cana (Cachaça)</span></div>
+                    <div class="label-row"><span class="label-key">ESTILO:</span><span class="label-value">Herbáceo / Amadeirado</span></div>
+                    <div class="label-row"><span class="label-key">LOTE:</span><span class="label-value">#042-ALFA</span></div>
+                    <div class="label-row"><span class="label-key">GARRAFA:</span><span class="label-value">012/150</span></div>
+                    <div class="label-row"><span class="label-key">ABV:</span><span class="label-value">48.0%</span></div>
+                    <div class="label-row"><span class="label-key">TEMP:</span><span class="label-value">18°C</span></div>
+                    
+                    <div class="label-row label-full-row"><span class="label-key">BASE:</span><span class="label-value">Mosto de cana-de-açúcar de corte manual, fermentação selvagem.</span></div>
+                    <div class="label-row label-full-row"><span class="label-key">ADIÇÕES:</span><span class="label-value">Infusão a frio de botânicos nativos, repouso em tosta forte.</span></div>
+                    
+                    <div class="checkbox-group">
+                        <p>ESTÁGIO:</p>
+                        <div class="check-items">
+                            <div class="check-item"><span class="box"></span> exploração</div>
+                            <div class="check-item"><span class="box"></span> ajuste</div>
+                            <div class="check-item"><span class="box checked"></span> validação</div>
+                            <div class="check-item"><span class="box"></span> consolidação</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensorial-notes">
+                    <strong>ANÁLISE SENSORIAL:</strong> O vigor da cana crua cortado pelo amargor terroso de raízes frescas. O final traz a adstringência profunda da madeira brasileira tostada. Uma expressão selvagem e destilada da terra.
+                </div>
+
+                <div class="purchase-action gooey-container">
+                    <a href="#" class="btn-organic" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;">Requisitar Amostra</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experimento 02 -->
+        <div class="experiment-card scroll-reveal">
+            <div class="experiment-visual">
+                <img src="logo_sem_texto.png" alt="Garrafa Experimento 02" style="filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)) sepia(1) hue-rotate(-50deg);">
+            </div>
+            <div class="technical-label">
+                <div class="label-header-txt">
+                    <span>PADRINO</span>
+                    <span style="font-size: 0.8rem; font-weight: normal; margin-top:auto;">Experiências Líquidas</span>
+                </div>
+                
+                <div class="label-grid-data">
+                    <div class="label-row"><span class="label-key">BEBIDA:</span><span class="label-value">Hidromel Botânico</span></div>
+                    <div class="label-row"><span class="label-key">ESTILO:</span><span class="label-value">Floral Escuro / Denso</span></div>
+                    <div class="label-row"><span class="label-key">LOTE:</span><span class="label-value">#018-BETA</span></div>
+                    <div class="label-row"><span class="label-key">GARRAFA:</span><span class="label-value">089/200</span></div>
+                    <div class="label-row"><span class="label-key">ABV:</span><span class="label-value">14.5%</span></div>
+                    <div class="label-row"><span class="label-key">TEMP:</span><span class="label-value">10°C</span></div>
+                    
+                    <div class="label-row label-full-row"><span class="label-key">BASE:</span><span class="label-value">Mel de florada de jabuticabeiras (apiário consorciado ao pomar).</span></div>
+                    <div class="label-row label-full-row"><span class="label-key">ADIÇÕES:</span><span class="label-value">Leveduras selvagens isoladas da casca da própria jabuticaba.</span></div>
+                    
+                    <div class="checkbox-group">
+                        <p>ESTÁGIO:</p>
+                        <div class="check-items">
+                            <div class="check-item"><span class="box"></span> exploração</div>
+                            <div class="check-item"><span class="box"></span> ajuste</div>
+                            <div class="check-item"><span class="box"></span> validação</div>
+                            <div class="check-item"><span class="box checked"></span> consolidação</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensorial-notes">
+                    <strong>ANÁLISE SENSORIAL:</strong> Textura licorosa. O dulçor inicial do mel silvestre é subitamente interceptado por uma acidez vibrante e notas tânicas que remetem à casca da jabuticaba madura. Um néctar noturno e complexo.
+                </div>
+
+                <div class="purchase-action gooey-container">
+                    <a href="#" class="btn-organic" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;">Requisitar Amostra</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 PADRINO EXPERIÊNCIAS LÍQUIDAS. Todos os direitos reservados à pesquisa.</p>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">Consuma as descobertas com cautela.</p>
+    </footer>
+
+    <!-- Scripts de Interação -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cursor = document.getElementById('custom-cursor');
+            const interactables = document.querySelectorAll('a, button, .btn-organic');
+            const overlay = document.getElementById('transition-overlay');
+
+            // 1. Lógica do Cursor Customizado
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            interactables.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    document.body.classList.add('hovering');
+                });
+                item.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('hovering');
+                });
+            });
+
+            // 2. Transição Líquida de Navegação Interna
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+
+                    // Inicia animação do líquido subindo
+                    overlay.classList.add('active');
+                    overlay.classList.remove('leaving');
+
+                    // Aguarda o líquido cobrir a tela
+                    setTimeout(() => {
+                        // Faz o scroll instantâneo enquanto a tela está coberta
+                        window.scrollTo({
+                            top: targetElement.offsetTop,
+                            behavior: 'auto'
+                        });
+
+                        // Inicia o líquido descendo
+                        overlay.classList.remove('active');
+                        overlay.classList.add('leaving');
+                        
+                        // Reseta as classes após a transição
+                        setTimeout(() => {
+                            overlay.classList.remove('leaving');
+                        }, 1000);
+
+                    }, 800); // Tempo correspondente à transição CSS do topo
+                });
+            });
+
+            // 3. Scroll Reveal (Animação de surgimento das garrafas/fichas)
+            const revealElements = document.querySelectorAll('.scroll-reveal');
+            
+            const revealOptions = {
+                threshold: 0.2, // Dispara quando 20% do elemento está visível
+                rootMargin: "0px 0px -100px 0px"
+            };
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target); // Anima apenas uma vez
+                    }
+                });
+            }, revealOptions);
+
+            revealElements.forEach(el => {
+                revealObserver.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
