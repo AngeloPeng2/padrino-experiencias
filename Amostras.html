@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo | Padrino</title>
+    <link rel="icon" href="logo_sem_texto.png" type="image/png">
+    <style>
+        /* ==========================================================================
+           1. VARIÁVEIS E BASE (Herdado do Index)
+           ========================================================================== */
+        :root {
+            --bg-color: #F5F1EA;
+            --text-color: #111111;
+            --accent-color: #333333;
+            --font-mono: 'Courier New', Courier, monospace;
+            --fluid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        ::selection { background: var(--text-color); color: var(--bg-color); }
+
+        /* ==========================================================================
+           2. NAVEGAÇÃO E CURSOR
+           ========================================================================== */
+        header {
+            position: fixed; top: 0; width: 100%; padding: 2rem 3%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100; mix-blend-mode: difference; color: var(--bg-color);
+        }
+        .logo-nav { width: 150px; filter: invert(1); transition: transform 0.3s; }
+        .logo-nav:hover { transform: scale(1.05); }
+        
+        nav ul { display: flex; list-style: none; gap: 1.5rem; }
+        nav a {
+            text-decoration: none; color: inherit; font-weight: bold; font-size: 0.85rem;
+            letter-spacing: 1px; text-transform: uppercase; position: relative; padding: 5px 10px;
+        }
+        nav a::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 1px;
+            background-color: currentColor; transition: all 0.4s var(--fluid-easing); transform: translateX(-50%);
+        }
+        nav a:hover::after { width: 100%; }
+
+        #custom-cursor {
+            position: fixed; top: 0; left: 0; width: 32px; height: 32px;
+            background-color: rgba(17, 17, 17, 0.25); border: 3px solid var(--text-color);
+            border-radius: 50%; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background-color 0.3s, border-radius 0.3s;
+            mix-blend-mode: difference; backdrop-filter: blur(2px);
+        }
+        #custom-cursor::after {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px;
+            background-color: var(--bg-color); border-radius: 50%; transform: translate(-50%, -50%); transition: opacity 0.3s;
+        }
+        body.hovering #custom-cursor {
+            width: 50px; height: 50px; background-color: var(--text-color);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: morph-cursor 3s infinite linear;
+        }
+        body.hovering #custom-cursor::after { opacity: 0; }
+        @keyframes morph-cursor {
+            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+            100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        }
+
+        /* ==========================================================================
+           3. OVERLAY LÍQUIDO E ESTRUTURA
+           ========================================================================== */
+        .liquid-overlay {
+            position: fixed; top: 100%; left: 0; width: 100%; height: 120vh;
+            background-color: var(--text-color); z-index: 2000; pointer-events: none;
+            transition: top 1s var(--fluid-easing);
+            border-top-left-radius: 50% 20%; border-top-right-radius: 50% 20%;
+        }
+        .liquid-overlay.active {
+            top: -10%; border-top-left-radius: 0; border-top-right-radius: 0;
+            border-bottom-left-radius: 50% 20%; border-bottom-right-radius: 50% 20%;
+        }
+        .liquid-overlay.leaving { top: -120%; }
+
+        /* Botão Genérico */
+        .btn-organic {
+            display: inline-block; padding: 1rem 2.5rem; background-color: var(--text-color);
+            color: var(--bg-color); text-decoration: none; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 2px; border: none; position: relative; z-index: 1; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; 
+        }
+
+        /* ==========================================================================
+           4. PÁGINA DO CATÁLOGO (ESTILO RETRO / LABORATÓRIO)
+           ========================================================================== */
+        #experimentos { padding: 20vh 5% 10vh 5%; min-height: 100vh; }
+        .section-title { text-align: center; font-size: 2rem; letter-spacing: 4px; text-transform: uppercase; position: relative; margin-bottom: 6rem; }
+        .section-title::after { content: ''; display: block; width: 50px; height: 2px; background: var(--text-color); margin: 1rem auto 0; border-radius: 50%; }
+
+        .experiment-display {
+            display: flex; gap: 5rem; max-width: 1200px; margin: 0 auto 8rem auto; align-items: center;
+            opacity: 0; transform: translateY(50px); transition: opacity 1s, transform 1s var(--fluid-easing);
+        }
+        .experiment-display.visible { opacity: 1; transform: translateY(0); }
+        
+        .label-card { flex: 1; border: 1.5px solid var(--text-color); padding: 2.5rem; background-color: var(--bg-color); position: relative; }
+        .label-brand { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.5px solid var(--text-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+        .label-brand h2 { font-size: 1.8rem; font-weight: bold; letter-spacing: 1px; }
+        .label-brand span { font-size: 0.8rem; font-weight: bold; }
+
+        .label-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 1rem; border-bottom: 1px dotted var(--text-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .l-col span { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.2rem; text-transform: uppercase; }
+        .l-col i { display: block; font-style: italic; font-size: 0.95rem; }
+
+        .label-desc { border-bottom: 1px dotted var(--text-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .label-desc p { font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.4; }
+        .label-desc p:last-child { margin-bottom: 0; }
+        .label-desc span { font-weight: bold; font-size: 0.85rem; margin-right: 0.5rem; text-transform: uppercase; }
+
+        .label-stage { border-bottom: 1px dashed var(--text-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .label-stage p { font-weight: bold; font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; }
+        .stages { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .stage-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+        .stage-box { width: 14px; height: 14px; border: 1.5px solid var(--text-color); display: inline-block; }
+        .stage-box.active { background-color: var(--text-color); border-radius: 50%; }
+
+        .label-sensorial { margin-bottom: 2.5rem; }
+        .label-sensorial p { font-size: 0.95rem; line-height: 1.6; text-align: justify; }
+        .label-sensorial span { font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
+        .label-action { text-align: right; }
+        
+        .btn-black {
+            background-color: var(--text-color); color: var(--bg-color); border: none; padding: 0.8rem 1.8rem;
+            font-family: inherit; font-weight: bold; font-size: 0.85rem; letter-spacing: 1px; border-radius: 30px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .btn-black:hover { transform: scale(1.05); opacity: 0.9; }
+
+        .visual-card { flex: 1; display: flex; justify-content: center; align-items: center; }
+        .visual-card img { max-width: 100%; height: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.1); background-color: #fff; padding: 1.5rem; transform: rotate(-2deg); transition: transform 0.5s ease; }
+        .visual-card:hover img { transform: rotate(0deg) scale(1.02); }
+
+        /* ==========================================================================
+           5. MODAL / PÁGINA DETALHADA DA BEBIDA (Com Parallax)
+           ========================================================================== */
+        #detail-view {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #EBE6DC;
+            z-index: 1000; overflow-y: auto; overflow-x: hidden; display: none; padding: 0;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.03) 1px, transparent 1px);
+        }
+        #detail-view.active { display: block; }
+        
+        .detail-header-bar { position: sticky; top: 0; width: 100%; padding: 1.5rem 5%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, #EBE6DC 80%, transparent); z-index: 10; }
+        
+        /* PARALLAX NO TÍTULO */
+        .detail-title-area { position: relative; text-align: center; padding: 8rem 5%; margin-top: -5rem; margin-bottom: 4rem; }
+        #dyn-title-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            opacity: 0.15; filter: grayscale(100%) contrast(1.2); z-index: 0;
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+        .detail-title-area h1, .detail-title-area p { position: relative; z-index: 1; }
+        .detail-title-area h1 { font-size: clamp(2.5rem, 4vw, 4rem); text-transform: uppercase; letter-spacing: -1px; margin-bottom: 0.5rem; }
+        .detail-title-area p { font-style: italic; opacity: 0.7; font-size: 1.2rem; }
+
+        .detail-content { padding: 0 5% 10rem 5%; max-width: 1200px; margin: 0 auto; animation: fadeIn 1s ease 0.5s both; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; position: relative; z-index: 2; }
+        
+        .detail-media { display: flex; flex-direction: column; gap: 2rem; }
+        .video-wrapper { position: relative; width: 100%; border: 2px solid var(--text-color); background: #000; }
+        .video-wrapper::before { content: '[REGISTRO AUDIOVISUAL]'; position: absolute; top: 10px; left: 10px; color: #fff; font-size: 0.7rem; letter-spacing: 1px; z-index: 2; opacity: 0.7; }
+        .video-wrapper video { width: 100%; display: block; opacity: 0.8; transition: opacity 0.3s; }
+        .video-wrapper:hover video { opacity: 1; }
+
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .gallery-item { aspect-ratio: 1; background-color: rgba(17,17,17,0.05); border: 1px dashed rgba(17,17,17,0.3); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%) contrast(1.2); transition: filter 0.4s, transform 0.4s; }
+        .gallery-item:hover img { filter: grayscale(0%) contrast(1); transform: scale(1.05); }
+
+        .detail-logbook { border-left: 2px solid var(--text-color); padding-left: 3rem; }
+        .log-section { margin-bottom: 3rem; position: relative; }
+        .log-section::before { content: ''; position: absolute; left: -3rem; top: 10px; width: 15px; height: 2px; background: var(--text-color); }
+        .log-section h3 { font-size: 1.5rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .log-section p { margin-bottom: 1rem; font-size: 1.1rem; line-height: 1.8; opacity: 0.9; text-align: justify; }
+        .process-steps { list-style: none; margin-top: 1.5rem; }
+        .process-steps li { position: relative; padding-left: 2rem; margin-bottom: 1rem; font-size: 1rem; }
+        .process-steps li::before { content: '>'; position: absolute; left: 0; font-weight: bold; }
+
+        footer { padding: 4rem 5%; text-align: center; border-top: 1px solid rgba(17,17,17,0.1); margin-top: 0; }
+
+        @media (max-width: 768px) {
+            .experiment-display, .experiment-display:nth-child(even) { flex-direction: column; gap: 3rem; }
+            .visual-card { order: -1; } .visual-card img { transform: rotate(0deg); }
+            .detail-grid { grid-template-columns: 1fr; }
+            nav ul { display: none; }
+            #custom-cursor { display: none; }
+            .detail-logbook { border-left: none; padding-left: 0; border-top: 2px solid var(--text-color); padding-top: 2rem; margin-top: 2rem;}
+            .log-section::before { display: none; }
+        }
+
+        /* ==========================================================================
+           ESTILO DOS BOTÕES SUPERIORES (Detalhes e Requisitar)
+           ========================================================================== */
+        .card-actions-top {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .btn-micro-outline, .btn-micro-solid {
+            font-family: var(--font-mono); /* Força a fonte de máquina de escrever do site */
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px; /* Cantos retos estilo etiqueta de laboratório */
+            text-transform: uppercase;
+            text-decoration: none; /* Remove a linha azul padrão dos links */
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        /* Estilo do botão "Detalhes" (Vazado com borda preta) */
+        .btn-micro-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--text-color);
+        }
+
+        .btn-micro-outline:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        /* Estilo do botão "Requisitar" (Fundo preto, texto claro) */
+        .btn-micro-solid {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: 1px solid var(--text-color);
+        }
+
+        .btn-micro-solid:hover {
+            background-color: transparent;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="custom-cursor"></div>
+    <div class="liquid-overlay" id="transition-overlay"></div>
+
+    <div id="detail-view">
+        <div class="detail-header-bar">
+            <img src="logo_com_texto.png" alt="Padrino" style="height: 40px; filter: invert(1) contrast(200%); mix-blend-mode: difference;">
+            <button id="close-detail" class="btn-organic" style="padding: 0.5rem 1.5rem; font-size: 0.8rem;">Retornar ao Catálogo</button>
+        </div>
+        <div class="detail-title-area">
+            <div id="dyn-title-bg"></div>
+            <h1 id="dyn-title">Lote Selecionado</h1>
+            <p id="dyn-subtitle">Carregando registros biológicos...</p>
+        </div>
+        <div class="detail-content">
+            <div class="detail-grid">
+                <div class="detail-media">
+                    <div class="video-wrapper">
+                        <video id="dyn-video" autoplay loop muted playsinline>
+                            <source src="" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="gallery-grid" id="dyn-gallery"></div>
+                </div>
+                <div class="detail-logbook">
+                    <div class="log-section">
+                        <h3>Memória do Elemento</h3>
+                        <p id="dyn-memory">Descrição...</p>
+                    </div>
+                    <div class="log-section">
+                        <h3>Processo de Extração</h3>
+                        <ul class="process-steps" id="dyn-process"></ul>
+                    </div>
+                    <div class="log-section">
+                        <h3>Comportamento em Laboratório</h3>
+                        <p id="dyn-behavior">Notas de observação...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <a href="index.html" class="nav-link"><img src="logo_com_texto.png" alt="Padrino" class="logo-nav"></a>
+        <nav>
+            <ul>
+                <li><a href="index.html" class="nav-link">Gênese</a></li>
+                <li><a href="amostras.html" class="nav-link">Amostras</a></li>
+                <li><a href="index.html#padrino-plus" class="nav-link">Padrino+</a></li>
+            </ul>
+        </nav>
+    </header>
+
+   <!-- SEÇÃO PRINCIPAL (O Catálogo) -->
+    <section id="experimentos">
+        <div class="section-title scroll-reveal">
+            <h2>Lotes Disponíveis</h2>
+        </div>
+
+        <!-- Bebida 1: Cachaça -->
+        <div class="experiment-display scroll-reveal">
+            <div class="label-card">
+                
+                <!-- CABEÇALHO DO CARTÃO COM OS NOVOS BOTÕES PEQUENOS -->
+                <div class="label-brand" style="align-items: center;">
+                    <div>
+                        <h2 style="line-height: 1; margin-bottom: 2px;">PADRINO</h2>
+                        <span style="font-size: 0.65rem; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase;">Experiências Líquidas</span>
+                    </div>
+                    
+                    <div class="card-actions-top">
+                        <button class="btn-micro-outline clickable-drink" data-drink="cachaca">Detalhes</button>
+                        <a href="https://wa.link/lor3du" target="_blank" class="btn-micro-solid">Requisitar</a>
+                    </div>
+                </div>
+                
+                <div class="label-grid">
+                    <div class="l-col"><span>BEBIDA:</span> <i>Cachaça Defumada</i></div>
+                    <div class="l-col"><span>ESTILO:</span> <i>Herbáceo / Amadeirado</i></div>
+                    <div class="l-col"><span>LOTE:</span> <i>#042-ALFA</i></div>
+                    <div class="l-col"><span>GARRAFA:</span> <i>012/150</i></div>
+                    <div class="l-col"><span>ABV:</span> <i>44.5%</i></div>
+                    <div class="l-col"><span>TEMP:</span> <i>18°C</i></div>
+                </div>
+                <div class="label-desc">
+                    <p><span>BASE:</span> Mosto de cana-de-açúcar de corte manual, fermentação selvagem.</p>
+                    <p><span>ADIÇÕES:</span> Infusão a frio de botânicos nativos, repouso em tosta forte.</p>
+                </div>
+                <div class="label-stage">
+                    <p>ESTÁGIO:</p>
+                    <div class="stages">
+                        <div class="stage-item"><span class="stage-box"></span> exploração</div>
+                        <div class="stage-item"><span class="stage-box"></span> ajuste</div>
+                        <div class="stage-item"><span class="stage-box active"></span> validação</div>
+                        <div class="stage-item"><span class="stage-box"></span> consolidação</div>
+                    </div>
+                </div>
+                <div class="label-sensorial">
+                    <p><span>ANÁLISE SENSORIAL:</span> O vigor da cana crua cortado pelo amargor terroso de raízes frescas. O final traz a adstringência profunda da madeira brasileira tostada. Uma expressão selvagem e destilada da terra.</p>
+                </div>
+                <!-- Os botões antigos que ficavam aqui foram removidos -->
+            </div>
+            
+            <div class="visual-card">
+                <img src="bebidatest.jpeg" alt="Visual do Lote Alfa">
+            </div>
+        </div>
+
+        <!-- Bebida 2: Hidromel -->
+        <div class="experiment-display scroll-reveal" style="flex-direction: row-reverse;">
+            <div class="label-card">
+                
+                <!-- CABEÇALHO DO CARTÃO COM OS NOVOS BOTÕES PEQUENOS -->
+                <div class="label-brand" style="align-items: center;">
+                    <div>
+                        <h2 style="line-height: 1; margin-bottom: 2px;">PADRINO</h2>
+                        <span style="font-size: 0.65rem; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase;">Experiências Líquidas</span>
+                    </div>
+                    
+                  <div class="card-actions-top">
+                        <button class="btn-micro-outline clickable-drink" data-drink="hidromel">Detalhes</button>
+                        <a href="https://wa.link/r4q8rp" target="_blank" class="btn-micro-solid">Requisitar</a>
+                    </div>
+                </div>
+                
+                <div class="label-grid">
+                    <div class="l-col"><span>BEBIDA:</span> <i>Hidromel de Jabuticabeira</i></div>
+                    <div class="l-col"><span>ESTILO:</span> <i>Licoroso / Tânico</i></div>
+                    <div class="l-col"><span>LOTE:</span> <i>#018-BETA</i></div>
+                    <div class="l-col"><span>GARRAFA:</span> <i>045/100</i></div>
+                    <div class="l-col"><span>ABV:</span> <i>12.0%</i></div>
+                    <div class="l-col"><span>TEMP:</span> <i>12°C a 15°C</i></div>
+                </div>
+                <div class="label-desc">
+                    <p><span>BASE:</span> Mel silvestre cru de florada de jabuticabeira.</p>
+                    <p><span>ADIÇÕES:</span> Água de poço artesiano, maturação Sur Lie (8 meses).</p>
+                </div>
+                <div class="label-stage">
+                    <p>ESTÁGIO:</p>
+                    <div class="stages">
+                        <div class="stage-item"><span class="stage-box"></span> exploração</div>
+                        <div class="stage-item"><span class="stage-box active"></span> ajuste</div>
+                        <div class="stage-item"><span class="stage-box"></span> validação</div>
+                        <div class="stage-item"><span class="stage-box"></span> consolidação</div>
+                    </div>
+                </div>
+                <div class="label-sensorial">
+                    <p><span>ANÁLISE SENSORIAL:</span> Textura licorosa e densa. O dulçor inicial do mel silvestre é subitamente interceptado por uma acidez vibrante e notas tânicas que remetem à casca da jabuticaba madura e chão de floresta úmido.</p>
+                </div>
+                <!-- Os botões antigos que ficavam aqui foram removidos -->
+            </div>
+            
+            <div class="visual-card">
+                <img src="bebidatest.jpeg" alt="Visual do Lote Beta" style="transform: rotate(2deg);">
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 PADRINO EXPERIÊNCIAS LÍQUIDAS. Todos os direitos reservados à pesquisa.</p>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">Consuma as descobertas com cautela.</p>
+    </footer>
+
+    <script>
+        // DB DAS BEBIDAS COM IMAGENS DE FUNDO
+        const drinkDatabase = {
+            'cachaca': {
+                title: 'Destilado de Cana',
+                subtitle: 'LOTE #042-ALFA | Expressão Selvagem',
+                bgImg: 'bebidatest.jpeg', 
+                videoSrc: 'video test.mp4', 
+                memory: 'O vigor da cana crua cortado pelo amargor terroso de raízes frescas. O final traz a adstringência profunda da madeira brasileira tostada. O objetivo não foi domar a planta, mas isolar sua agressividade de forma potável.',
+                process: [
+                    'Colheita manual na aurora para evitar estresse térmico da planta.',
+                    'Moagem a frio e decantação natural sem aditivos químicos.',
+                    'Fermentação selvagem utilizando leveduras do próprio canavial (4 a 6 dias).',
+                    'Destilação lenta em alambique de cobre martelado, descartando generosamente cabeça e cauda.',
+                    'Infusão a frio com raízes nativas e repouso em barril de tosta severa.'
+                ],
+                behavior: 'Reage agressivamente a mudanças de temperatura. A 18°C os óleos essenciais ficam suspensos perfeitamente. Apresentou leve turbidez natural (não filtrado a frio para preservar ésteres).',
+                images: [
+                    'https://placehold.co/400x400/222/EBE6DC?text=Alambique',
+                    'https://placehold.co/400x400/222/EBE6DC?text=Raizes',
+                    'https://placehold.co/400x400/222/EBE6DC?text=Tosta',
+                    'https://placehold.co/400x400/222/EBE6DC?text=Engarrafamento'
+                ]
+            },
+            'hidromel': {
+                title: 'Hidromel Botânico',
+                subtitle: 'LOTE #018-BETA | Néctar Noturno',
+                bgImg: 'imgtest.jpeg',
+                videoSrc: 'video test.mp4', 
+                memory: 'Textura licorosa e densa. O dulçor inicial do mel silvestre é subitamente interceptado por uma acidez vibrante e notas tânicas que remetem à casca da jabuticaba madura e chão de floresta úmido.',
+                process: [
+                    'Coleta restrita ao apiário consorciado ao pomar de jabuticabeiras durante o pico da florada.',
+                    'Diluição do mel cru em água de poço artesiano não tratada quimicamente.',
+                    'Inoculação com cepas de leveduras isoladas da casca da própria jabuticaba.',
+                    'Fermentação primária longa e tumultuosa em ambiente escuro.',
+                    'Maturação sobre as borras (sur lie) por 8 meses para ganho de textura e complexidade.'
+                ],
+                behavior: 'Estabilidade alcançada após o 6º mês. Formação de película biológica protetora na superfície durante o repouso. Coloração púrpura profunda oxidando para tons atijolados nas bordas.',
+                images: [
+                    'https://placehold.co/400x400/111/EBE6DC?text=Apiario',
+                    'https://placehold.co/400x400/111/EBE6DC?text=Mel+Cru',
+                    'https://placehold.co/400x400/111/EBE6DC?text=Fermentacao',
+                    'https://placehold.co/400x400/111/EBE6DC?text=Borras'
+                ]
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cursor = document.getElementById('custom-cursor');
+            const overlay = document.getElementById('transition-overlay');
+            const detailView = document.getElementById('detail-view');
+            const btnCloseDetail = document.getElementById('close-detail');
+
+            // Animação inicial ao carregar a página (A tela começa preta e revela as bebidas)
+            overlay.classList.add('active');
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                overlay.classList.add('leaving');
+                setTimeout(() => overlay.classList.remove('leaving'), 1000);
+            }, 100);
+
+            // Cursor Customizado
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.querySelectorAll('a, button, .btn-organic, .btn-black, .clickable-drink').forEach(item => {
+                item.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                item.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            });
+
+            // Transição de Navegação para outras páginas (Voltar pro Início)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if(targetId) {
+                        e.preventDefault();
+                        overlay.classList.add('active');
+                        overlay.classList.remove('leaving');
+                        setTimeout(() => window.location.href = targetId, 800);
+                    }
+                });
+            });
+
+            // Abrir e Fechar Modal Detalhado
+            document.querySelectorAll('.clickable-drink').forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const drinkId = this.getAttribute('data-drink');
+                    const data = drinkDatabase[drinkId];
+                    if(!data) return;
+
+                    overlay.classList.add('active');
+                    overlay.classList.remove('leaving');
+
+                    setTimeout(() => {
+                        document.getElementById('dyn-title').innerText = data.title;
+                        document.getElementById('dyn-subtitle').innerText = data.subtitle;
+                        document.getElementById('dyn-memory').innerText = data.memory;
+                        document.getElementById('dyn-behavior').innerText = data.behavior;
+                        document.getElementById('dyn-title-bg').style.backgroundImage = `url('${data.bgImg}')`;
+                        
+                        const videoEl = document.getElementById('dyn-video');
+                        videoEl.src = data.videoSrc;
+                        videoEl.load();
+
+                        const processList = document.getElementById('dyn-process');
+                        processList.innerHTML = '';
+                        data.process.forEach(step => {
+                            const li = document.createElement('li'); li.innerText = step;
+                            processList.appendChild(li);
+                        });
+
+                        const gallery = document.getElementById('dyn-gallery');
+                        gallery.innerHTML = '';
+                        data.images.forEach(imgUrl => {
+                            const div = document.createElement('div'); div.className = 'gallery-item';
+                            const img = document.createElement('img'); img.src = imgUrl;
+                            div.appendChild(img); gallery.appendChild(div);
+                        });
+
+                        detailView.classList.add('active');
+                        detailView.scrollTo(0,0);
+                        document.body.style.overflow = 'hidden';
+
+                        overlay.classList.remove('active');
+                        overlay.classList.add('leaving');
+                        setTimeout(() => overlay.classList.remove('leaving'), 1000);
+                    }, 800);
+                });
+            });
+
+            btnCloseDetail.addEventListener('click', () => {
+                overlay.classList.add('active');
+                overlay.classList.remove('leaving');
+
+                setTimeout(() => {
+                    detailView.classList.remove('active');
+                    document.body.style.overflow = ''; 
+                    document.getElementById('dyn-video').pause();
+
+                    overlay.classList.remove('active');
+                    overlay.classList.add('leaving');
+                    setTimeout(() => overlay.classList.remove('leaving'), 1000);
+                }, 800);
+            });
+
+            // Revelar Elementos no Scroll
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2, rootMargin: "0px 0px -100px 0px" });
+
+            document.querySelectorAll('.scroll-reveal').forEach(el => revealObserver.observe(el));
+        });
+    </script>
+</body>
+</html>

@@ -36,7 +36,7 @@
             overflow-x: hidden;
             background-image: 
                 radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 1px, transparent 1px);
-            background-size: 20px 20px; /* Textura sutil de caderno/laboratório */
+            background-size: 20px 20px;
         }
 
         ::selection {
@@ -45,31 +45,48 @@
         }
 
         /* ==========================================================================
-           2. CURSOR CUSTOMIZADO E UTILITÁRIOS
+           2. CURSOR CUSTOMIZADO MELHORADO (Mais visível)
            ========================================================================== */
         #custom-cursor {
             position: fixed;
             top: 0;
             left: 0;
-            width: 24px;
-            height: 24px;
-            background-color: rgba(17, 17, 17, 0.1);
-            border: 2px solid var(--text-color);
+            width: 32px; /* Aumentado */
+            height: 32px; /* Aumentado */
+            background-color: rgba(17, 17, 17, 0.25); /* Fundo mais denso */
+            border: 3px solid var(--text-color); /* Borda mais grossa */
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
             transform: translate(-50%, -50%);
             transition: width 0.3s, height 0.3s, background-color 0.3s, border-radius 0.3s;
             mix-blend-mode: difference;
+            backdrop-filter: blur(2px); /* Destaca o cursor sobre fundos complexos */
         }
 
-        /* Efeito quando passa sobre links/botões */
+        /* Ponto central para facilitar o rastreamento do olhar */
+        #custom-cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 4px; height: 4px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+        }
+
+        /* Efeito quando passa sobre links/botões/imagens clicáveis */
         body.hovering #custom-cursor {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background-color: var(--text-color);
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; /* Forma orgânica */
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
             animation: morph-cursor 3s infinite linear;
+        }
+        
+        body.hovering #custom-cursor::after {
+            opacity: 0; /* Esconde o ponto central ao focar em um item */
         }
 
         @keyframes morph-cursor {
@@ -78,7 +95,6 @@
             100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
         }
 
-        /* Filtro SVG para Tensão Superficial (Gooey Effect) */
         .gooey-container {
             filter: url('#goo');
         }
@@ -90,31 +106,31 @@
             position: fixed;
             top: 0;
             width: 100%;
-            padding: 2rem 3%; /* Margem reduzida para empurrar mais para os cantos */
+            padding: 2rem 3%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
             mix-blend-mode: difference;
-            color: var(--bg-color); /* Fica branco sobre o fundo preto e preto sobre o fundo branco */
+            color: var(--bg-color);
         }
 
         .logo-nav {
             width: 150px;
-            filter: invert(1); /* Inverte a imagem preta para branca para o blend mode */
+            filter: invert(1);
         }
 
         nav ul {
             display: flex;
             list-style: none;
-            gap: 1.5rem; /* Reduzido o espaço entre os itens do menu */
+            gap: 1.5rem;
         }
 
         nav a {
             text-decoration: none;
             color: inherit;
             font-weight: bold;
-            font-size: 0.85rem; /* Fonte menor */
+            font-size: 0.85rem;
             letter-spacing: 1px;
             text-transform: uppercase;
             position: relative;
@@ -147,7 +163,7 @@
             width: 100%;
             height: 120vh;
             background-color: var(--text-color);
-            z-index: 1000;
+            z-index: 2000; /* Z-index altíssimo para cobrir tudo, incluindo o detail-view */
             pointer-events: none;
             transition: top 1s var(--fluid-easing);
             border-top-left-radius: 50% 20%;
@@ -178,11 +194,7 @@
             position: relative;
         }
 
-        /* --- HERO --- */
-        #inicio {
-            flex-direction: column;
-            overflow: hidden;
-        }
+        #inicio { flex-direction: column; overflow: hidden; }
 
         .hero-blob {
             position: absolute;
@@ -190,7 +202,7 @@
             height: 60vw;
             max-width: 800px;
             max-height: 800px;
-            background-color: rgba(17, 17, 17, 0.08); /* Opacidade aumentada para ficar mais visível */
+            background-color: rgba(17, 17, 17, 0.08);
             z-index: -1;
             border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
             animation: fluid-blob 15s ease-in-out infinite alternate;
@@ -202,33 +214,11 @@
             100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(360deg) scale(1); }
         }
 
-        .hero-content {
-            text-align: center;
-            max-width: 800px;
-            position: relative;
-        }
+        .hero-content { text-align: center; max-width: 800px; position: relative; }
+        .hero-logo-icon { width: 280px; margin-bottom: 2rem; animation: float 6s ease-in-out infinite; }
+        .hero-title { font-size: clamp(2rem, 5vw, 4rem); font-weight: normal; margin-bottom: 1rem; letter-spacing: -2px; }
+        .hero-subtitle { font-size: clamp(1rem, 2vw, 1.5rem); font-style: italic; opacity: 0.8; margin-bottom: 3rem; }
 
-        .hero-logo-icon {
-            width: 280px; /* Tamanho aumentado para maior destaque */
-            margin-bottom: 2rem;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .hero-title {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-weight: normal;
-            margin-bottom: 1rem;
-            letter-spacing: -2px;
-        }
-
-        .hero-subtitle {
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            font-style: italic;
-            opacity: 0.8;
-            margin-bottom: 3rem;
-        }
-
-        /* Botão Líquido */
         .btn-organic {
             display: inline-block;
             padding: 1rem 2.5rem;
@@ -242,7 +232,6 @@
             position: relative;
             z-index: 1;
             transition: color 0.3s;
-            /* Forma inicial levemente irregular */
             border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; 
         }
 
@@ -257,10 +246,7 @@
             transition: transform 0.5s var(--fluid-easing), border-radius 0.5s ease;
         }
 
-        .btn-organic:hover::before {
-            transform: scale(1);
-            animation: blob-btn 3s infinite alternate;
-        }
+        .btn-organic:hover::before { transform: scale(1); animation: blob-btn 3s infinite alternate; }
 
         @keyframes blob-btn {
             0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
@@ -272,61 +258,21 @@
             50% { transform: translateY(-20px); }
         }
 
-        /* --- O ALQUIMISTA --- */
         #alquimista {
-            background-color: #EBE6DC; /* Tom levemente mais escuro para quebra */
-            border-radius: 10% 10% 0 0 / 5% 5% 0 0; /* Borda superior orgânica */
-            margin-top: -5vh; /* Sobreposição fluida */
+            background-color: #EBE6DC;
+            border-radius: 10% 10% 0 0 / 5% 5% 0 0;
+            margin-top: -5vh;
         }
 
-        .alchemist-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5rem;
-            max-width: 1200px;
-            align-items: center;
-        }
+        .alchemist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; max-width: 1200px; align-items: center; }
+        .journal-text { border-left: 2px dashed var(--accent-color); padding-left: 2rem; position: relative; }
+        .journal-text::before { content: '[NOTAS DE CAMPO]'; display: block; font-size: 0.8rem; margin-bottom: 1rem; opacity: 0.6; letter-spacing: 1px; }
+        .journal-text h2 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+        .journal-text p { font-size: 1.1rem; margin-bottom: 1rem; opacity: 0.85; }
 
-        .journal-text {
-            border-left: 2px dashed var(--accent-color);
-            padding-left: 2rem;
-            position: relative;
-        }
-
-        .journal-text::before {
-            content: '[NOTAS DE CAMPO]';
-            display: block;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-            opacity: 0.6;
-            letter-spacing: 1px;
-        }
-
-        .journal-text h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .journal-text p {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            opacity: 0.85;
-        }
-
-        .journal-image {
-            position: relative;
-            width: 100%;
-            height: 600px;
-            background: url('logo_sem_texto.png') center/contain no-repeat;
-            opacity: 0.15;
-            filter: blur(1px);
-        }
-        
+        .journal-image { position: relative; width: 100%; height: 600px; background: url('logo_sem_texto.png') center/contain no-repeat; opacity: 0.15; filter: blur(1px); }
         .journal-image::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 1px solid var(--text-color);
+            content: ''; position: absolute; inset: 0; border: 1px solid var(--text-color);
             border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
             animation: morph-border 10s infinite alternate linear;
         }
@@ -336,71 +282,188 @@
             100% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
         }
 
-        /* --- CATÁLOGO DE EXPERIMENTOS --- */
-        #experimentos {
-            flex-direction: column;
-            gap: 5rem;
-            padding-top: 15vh;
-        }
-        
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            position: relative;
-            margin-bottom: 4rem;
-        }
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 2px;
-            background: var(--text-color);
-            margin: 1rem auto 0;
-            border-radius: 50%; /* Ligeiramente orgânico */
-        }
+        #experimentos { flex-direction: column; gap: 5rem; padding-top: 15vh; }
+        .section-title { text-align: center; font-size: 2rem; letter-spacing: 4px; text-transform: uppercase; position: relative; margin-bottom: 4rem; }
+        .section-title::after { content: ''; display: block; width: 50px; height: 2px; background: var(--text-color); margin: 1rem auto 0; border-radius: 50%; }
 
         .experiment-card {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1200px; width: 100%; align-items: center;
+            opacity: 0; transform: translateY(50px); transition: opacity 1s, transform 1s var(--fluid-easing);
+        }
+        .experiment-card.visible { opacity: 1; transform: translateY(0); }
+        .experiment-card:nth-child(even) { grid-template-columns: 1fr 1fr; direction: rtl; }
+        .experiment-card:nth-child(even) > * { direction: ltr; }
+
+        .experiment-visual {
+            position: relative; height: 500px; display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: transform 0.4s ease, background 0.4s ease;
+        }
+
+        /* Área interativa da imagem */
+        .clickable-drink {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .clickable-drink img {
+            width: auto; height: 70%; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
+            animation: float-slow 8s ease-in-out infinite;
+            transition: filter 0.4s ease, transform 0.4s ease;
+        }
+
+        .clickable-drink:hover img {
+            filter: drop-shadow(0 30px 40px rgba(0,0,0,0.3)) brightness(1.1);
+            transform: scale(1.05) rotate(2deg);
+        }
+        
+        .clickable-drink::after {
+            content: 'INSPECIONAR DETALHES';
+            position: absolute;
+            bottom: 10%; left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-color);
+            color: var(--bg-color);
+            padding: 5px 15px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease, bottom 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* ==========================================================================
+           NOVO LAYOUT DE AMOSTRAS (Design do Cartão de Laboratório)
+           ========================================================================== */
+        .experiment-display {
+            display: flex;
+            gap: 5rem;
             max-width: 1200px;
-            width: 100%;
+            margin: 0 auto 8rem auto;
             align-items: center;
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 1s, transform 1s var(--fluid-easing);
         }
-
-        .experiment-card.visible {
+        
+        .experiment-display.visible {
             opacity: 1;
             transform: translateY(0);
         }
-
-        .experiment-card:nth-child(even) {
-            grid-template-columns: 1fr 1fr;
-            direction: rtl; /* Inverte o layout */
-        }
-        .experiment-card:nth-child(even) > * {
-            direction: ltr; /* Restaura a direção do texto */
-        }
-
-        .experiment-visual {
+        
+        /* O Cartão de Texto (Esquerda na sua imagem) */
+        .label-card {
+            flex: 1;
+            border: 1.5px solid var(--text-color);
+            padding: 2.5rem;
+            background-color: var(--bg-color);
+            font-family: var(--font-mono);
+            color: var(--text-color);
             position: relative;
-            height: 500px;
+        }
+
+        .label-brand {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1.5px solid var(--text-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .label-brand h2 { font-size: 1.8rem; font-weight: bold; letter-spacing: 1px; }
+        .label-brand span { font-size: 0.8rem; font-weight: bold; }
+
+        .label-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 1rem;
+            border-bottom: 1px dotted var(--text-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .l-col span { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 0.2rem; text-transform: uppercase; }
+        .l-col i { display: block; font-style: italic; font-size: 0.95rem; }
+
+        .label-desc {
+            border-bottom: 1px dotted var(--text-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .label-desc p { font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.4; }
+        .label-desc p:last-child { margin-bottom: 0; }
+        .label-desc span { font-weight: bold; font-size: 0.85rem; margin-right: 0.5rem; text-transform: uppercase; }
+
+        .label-stage {
+            border-bottom: 1px dashed var(--text-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .label-stage p { font-weight: bold; font-size: 0.85rem; margin-bottom: 1rem; text-transform: uppercase; }
+        .stages { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .stage-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+        .stage-box { width: 14px; height: 14px; border: 1.5px solid var(--text-color); display: inline-block; }
+        .stage-box.active { background-color: var(--text-color); border-radius: 50%; } /* Transforma num círculo quando ativo */
+
+        .label-sensorial {
+            margin-bottom: 2.5rem;
+        }
+        .label-sensorial p { font-size: 0.95rem; line-height: 1.6; text-align: justify; }
+        .label-sensorial span { font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
+
+        .label-action {
+            text-align: right;
+        }
+        
+        /* O Botão Preto da Imagem */
+        .btn-black {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 0.8rem 1.8rem;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border-radius: 30px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .btn-black:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        /* A imagem flutuante (Direita na sua imagem) */
+        .visual-card {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%);
-            border-radius: 50%;
+        }
+        .visual-card img {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            background-color: #fff;
+            padding: 1.5rem;
+            transform: rotate(-2deg); /* Dá o aspeto de um papel solto */
+            transition: transform 0.5s ease;
+        }
+        .visual-card:hover img {
+            transform: rotate(0deg) scale(1.02);
+        }
+        
+        @media (max-width: 768px) {
+            .experiment-display, .experiment-display:nth-child(even) { flex-direction: column; gap: 3rem; }
+            .visual-card { order: -1; } /* Coloca a imagem em cima nos telemóveis */
+            .visual-card img { transform: rotate(0deg); }
         }
 
-        .experiment-visual img {
-            width: auto;
-            height: 70%;
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
-            animation: float-slow 8s ease-in-out infinite;
+        .clickable-drink:hover::after {
+            opacity: 1;
+            bottom: 5%;
         }
 
         @keyframes float-slow {
@@ -408,133 +471,485 @@
             50% { transform: translateY(-15px) rotate(2deg); }
         }
 
-        /* Estilo da Etiqueta Técnica (Rótulo) */
         .technical-label {
-            border: 1px solid var(--text-color);
-            padding: 2rem;
-            position: relative;
+            border: 1px solid var(--text-color); padding: 2rem; position: relative; background-color: var(--bg-color);
+            border-radius: 2px 15px 3px 10px / 10px 2px 15px 4px; box-shadow: 5px 5px 0px rgba(0,0,0,0.05);
+        }
+        .label-header-txt { font-size: 1.5rem; font-weight: bold; border-bottom: 1px solid var(--text-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; }
+        .label-grid-data { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem; }
+        .label-row { display: flex; border-bottom: 1px dotted rgba(17,17,17,0.3); padding-bottom: 0.2rem; }
+        .label-key { font-weight: bold; margin-right: 0.5rem; }
+        .label-value { font-style: italic; }
+        .label-full-row { grid-column: 1 / -1; }
+        
+        .checkbox-group { margin-top: 1rem; grid-column: 1 / -1; }
+        .checkbox-group p { font-weight: bold; margin-bottom: 0.5rem; }
+        .check-items { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .check-item { display: flex; align-items: center; gap: 0.5rem; }
+        .box { width: 15px; height: 15px; border: 1px solid var(--text-color); display: inline-block; border-radius: 2px; }
+        .box.checked { background-color: var(--text-color); border-radius: 50%; }
+
+        .sensorial-notes { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed var(--text-color); font-size: 0.95rem; }
+        .purchase-action { margin-top: 2rem; text-align: right; }
+
+        /* ==========================================================================
+           5.5. NOVAS SEÇÕES (PADRINO+, HISTÓRIA, EQUIPE)
+           ========================================================================== */
+        /* --- PADRINO+ (CLUBE) --- */
+        #padrino-plus {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            flex-direction: column;
+            padding: 15vh 5%;
+        }
+        .plus-header {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 5rem;
+        }
+        .plus-header h2 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: 2px; margin-bottom: 1rem; }
+        .plus-header p { font-size: 1.1rem; opacity: 0.8; font-style: italic; }
+        
+        .plus-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            max-width: 1200px;
+            width: 100%;
+            margin-bottom: 4rem;
+        }
+        .plus-item {
+            border-top: 1px solid rgba(245, 241, 234, 0.2);
+            padding-top: 1.5rem;
+        }
+        .plus-item-number { font-size: 0.8rem; opacity: 0.5; margin-bottom: 1rem; display: block; }
+        .plus-item h3 { font-size: 1.3rem; margin-bottom: 1rem; text-transform: uppercase; }
+        .plus-item p { font-size: 0.95rem; opacity: 0.7; line-height: 1.8; }
+
+        .btn-organic.inverse {
             background-color: var(--bg-color);
-            /* Borda orgânica simulando papel cortado irregularmente */
-            border-radius: 2px 15px 3px 10px / 10px 2px 15px 4px;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.05);
+            color: var(--text-color);
+        }
+        .btn-organic.inverse::before {
+            background-color: var(--bg-color);
         }
 
-        .label-header-txt {
-            font-size: 1.5rem;
-            font-weight: bold;
+        /* --- NOSSA HISTÓRIA --- */
+        #historia {
+            background-color: var(--bg-color);
+            flex-direction: column;
+        }
+        .history-wrapper {
+            display: grid;
+            grid-template-columns: 5fr 4fr;
+            gap: 6rem;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
+        }
+        .history-content h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+        .history-content p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.85;
+            line-height: 1.8;
+            text-align: justify;
+        }
+       .history-gallery {
+            display: flex;
+            flex-direction: column; /* Coloca as imagens em coluna (uma em baixo da outra) */
+            gap: 2rem; /* Cria um espaço limpo e uniforme entre as duas fotografias */
+            width: 100%;
+            max-width: 480px; /* Mantém a largura controlada para não esmagar o texto */
+            margin-left: auto;
+        }
+        
+        /* Aplica exatamente o mesmo tamanho e formato para ambas */
+        .history-img-main, 
+        .history-img-secondary {
+            position: static; /* Remove a regra anterior que as fazia sobrepor-se */
+            width: 100%;
+            height: 300px; /* Ambas terão exatamente 300px de altura */
+            object-fit: cover;
+            border-radius: 12px; /* Cantos arredondados iguais */
+            border: none; /* Remove a borda grossa que era usada na sobreposição */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Adiciona uma sombra muito subtil e elegante */
+        }
+
+        /* --- QUEM FAZ (ALQUIMISTAS) --- */
+        #equipe {
+            background-color: #EBE6DC;
+            flex-direction: column;
+            border-radius: 10% 10% 0 0 / 5% 5% 0 0;
+            padding-bottom: 10vh;
+        }
+        .team-title {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+        .team-title h2 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: 2px; text-transform: uppercase; }
+        
+        .team-grid {
+            display: flex;
+            justify-content: center;
+            gap: 5rem;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .team-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+.team-photo {
+            width: 250px;
+            height: 320px;
+            border: 1px solid var(--text-color);
+            padding: 10px;
+            border-radius: 12px; /* Fundo com bordas normais */
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(17,17,17,0.05);
+        }
+        
+        .team-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px; /* A foto acompanha o formato do quadro */
+            transition: transform 0.5s var(--fluid-easing);
+            /* O filtro grayscale foi removido para mostrar as cores desde o início */
+        }
+        
+        .team-member:hover .team-photo img {
+            transform: scale(1.05);
+            /* Mantém apenas o efeito de aproximação ao passar o rato */
+        }
+        .team-role {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
             border-bottom: 1px solid var(--text-color);
             padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        .team-name {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+        .team-bio {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        footer { padding: 4rem 5%; text-align: center; border-top: 1px solid rgba(17,17,17,0.1); margin-top: 0; }
+
+        /* ==========================================================================
+           6. PÁGINA DE DETALHES (SPA MODAL)
+           ========================================================================== */
+        #detail-view {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: #EBE6DC;
+            z-index: 1000;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: none; /* Escondido por padrão */
+            padding: 0;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #detail-view.active {
+            display: block;
+        }
+
+        .detail-header-bar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, #EBE6DC 80%, transparent);
+            z-index: 10;
         }
 
-        .label-grid-data {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            font-size: 0.9rem;
+        .detail-content {
+            padding: 5rem 5% 10rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 1s ease 0.5s both;
         }
 
-        .label-row {
-            display: flex;
-            border-bottom: 1px dotted rgba(17,17,17,0.3);
-            padding-bottom: 0.2rem;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .label-key {
-            font-weight: bold;
-            margin-right: 0.5rem;
-        }
-        
-        .label-value {
-            font-style: italic;
+        .detail-title-area {
+            text-align: center;
+            margin-bottom: 4rem;
         }
 
-        .label-full-row {
-            grid-column: 1 / -1;
-        }
-
-        .checkbox-group {
-            margin-top: 1rem;
-            grid-column: 1 / -1;
-        }
-        
-        .checkbox-group p {
-            font-weight: bold;
+        .detail-title-area h1 {
+            font-size: clamp(2.5rem, 4vw, 4rem);
+            text-transform: uppercase;
+            letter-spacing: -1px;
             margin-bottom: 0.5rem;
         }
 
-        .check-items {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
+        .detail-title-area p {
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 1.2rem;
         }
 
-        .check-item {
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        /* Seção de Mídia (Vídeo/Fotos) */
+        .detail-media {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 2px solid var(--text-color);
+            background: #000;
+        }
+        
+        .video-wrapper::before {
+            content: '[REGISTRO AUDIOVISUAL]';
+            position: absolute;
+            top: 10px; left: 10px;
+            color: #fff;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            z-index: 2;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .video-wrapper:hover video {
+            opacity: 1;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background-color: rgba(17,17,17,0.05);
+            border: 1px dashed rgba(17,17,17,0.3);
+            border-radius: 2px;
+            overflow: hidden;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.2);
+            transition: filter 0.4s, transform 0.4s;
         }
 
-        .box {
+        .gallery-item:hover img {
+            filter: grayscale(0%) contrast(1);
+            transform: scale(1.05);
+        }
+
+        /* Seção de Texto/Logbook */
+        .detail-logbook {
+            border-left: 2px solid var(--text-color);
+            padding-left: 3rem;
+        }
+
+        .log-section {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .log-section::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 10px;
             width: 15px;
-            height: 15px;
-            border: 1px solid var(--text-color);
-            display: inline-block;
-            border-radius: 2px;
-        }
-        .box.checked {
-            background-color: var(--text-color);
-            border-radius: 50%; /* Checkbox líquido */
+            height: 2px;
+            background: var(--text-color);
         }
 
-        .sensorial-notes {
+        .log-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .log-section p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            opacity: 0.9;
+            text-align: justify;
+        }
+
+        .process-steps {
+            list-style: none;
             margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px dashed var(--text-color);
-            font-size: 0.95rem;
         }
 
-        .purchase-action {
-            margin-top: 2rem;
-            text-align: right;
+        .process-steps li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
         }
 
-        /* ==========================================================================
-           6. FOOTER
-           ========================================================================== */
-        footer {
-            padding: 4rem 5%;
-            text-align: center;
-            border-top: 1px solid rgba(17,17,17,0.1);
-            margin-top: 5rem;
+        .process-steps li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
         }
 
         /* ==========================================================================
            7. RESPONSIVIDADE
            ========================================================================== */
         @media (max-width: 768px) {
-            .alchemist-grid, .experiment-card, .experiment-card:nth-child(even) {
+            .alchemist-grid, .experiment-card, .experiment-card:nth-child(even), .detail-grid, .plus-grid, .history-wrapper, .team-grid {
                 grid-template-columns: 1fr;
                 direction: ltr;
             }
-            .journal-image {
-                height: 300px;
-                order: -1;
-            }
-            nav ul {
-                display: none; /* Simplificação para mobile, em um site real teria menu hambúrguer */
-            }
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            .label-grid-data {
-                grid-template-columns: 1fr;
-            }
-            #custom-cursor {
-                display: none; /* Remove custom cursor em touch */
-            }
+            .history-img-secondary { display: none; }
+            .history-gallery { height: 400px; margin-top: 2rem; order: -1; }
+            .journal-image { height: 300px; order: -1; }
+            nav ul { display: none; }
+            .hero-title { font-size: 2.5rem; }
+            .label-grid-data { grid-template-columns: 1fr; }
+            #custom-cursor { display: none; }
+            .detail-logbook { border-left: none; padding-left: 0; border-top: 2px solid var(--text-color); padding-top: 2rem; margin-top: 2rem;}
+            .log-section::before { display: none; }
+        }
+
+        /* ==========================================================================
+           CABECALHO DA PÁGINA DE DETALHES (IMAGEM DE FUNDO)
+           ========================================================================== */
+        .detail-title-area {
+            position: relative;
+            text-align: center;
+            padding: 8rem 5%; /* Espaçamento vertical para mostrar a imagem */
+            margin-top: -5rem; /* Puxa o cabeçalho para o topo */
+            margin-bottom: 4rem;
+        }
+
+        #dyn-title-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Cria o efeito Parallax elegante */
+            opacity: 0.15; /* Opacidade baixa para manter a leitura perfeita */
+            filter: grayscale(100%) contrast(1.2); /* Remove a cor, combinando com a identidade */
+            z-index: 0;
+            /* Máscara que faz a imagem sumir gradualmente na parte de baixo */
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* Garante que o texto fique por cima da imagem */
+        .detail-title-area h1,
+        .detail-title-area p {
+            position: relative;
+            z-index: 1;
+        }
+        
+/* ==========================================================================
+           NOVOS BOTÕES DISCRETOS (Canto Superior Direito)
+    ========================================================================== */
+        .card-actions-top {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-micro-outline, .btn-micro-solid {
+            font-family: inherit;
+            font-size: 0.65rem; /* Texto bem pequeno e discreto */
+            font-weight: bold;
+            letter-spacing: 1px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 3px; /* Quadrado, estilo etiqueta de laboratório */
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-micro-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--text-color);
+        }
+
+        .btn-micro-outline:hover {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .btn-micro-solid {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border: 1px solid var(--text-color);
+        }
+
+        .btn-micro-solid:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        /* Ajuste para ecrãs pequenos (Telemóveis) */
+        @media (max-width: 768px) {
+            .label-brand { flex-direction: column; align-items: flex-start !important; gap: 1rem; }
         }
     </style>
 </head>
@@ -555,14 +970,67 @@
     <!-- Overlay para transição de página fluida -->
     <div class="liquid-overlay" id="transition-overlay"></div>
 
-    <!-- Cabeçalho -->
+    <!-- CONTAINER DE DETALHES (Renderizado dinamicamente pelo JS) -->
+    <div id="detail-view">
+        <div class="detail-header-bar">
+            <img src="logo_com_texto.png" alt="Padrino" style="height: 40px; filter: invert(1) contrast(200%); mix-blend-mode: difference;">
+            <button id="close-detail" class="btn-organic" style="padding: 0.5rem 1.5rem; font-size: 0.8rem;">Retornar</button>
+        </div>
+        <div class="detail-content">
+            <div class="detail-title-area">
+                <!-- Nova div para a imagem de fundo dinâmica -->
+                <div id="dyn-title-bg"></div>
+                
+                <h1 id="dyn-title">Lote Selecionado</h1>
+                <p id="dyn-subtitle">Carregando registros biológicos...</p>
+            </div>
+            
+            <div class="detail-grid">
+                <!-- Coluna de Mídia -->
+                <div class="detail-media">
+                    <div class="video-wrapper">
+                        <!-- Vídeo de placeholder ambiental -->
+                        <video id="dyn-video" autoplay loop muted playsinline>
+                            <source src="https://cdn.pixabay.com/video/2020/05/25/40134-424855909_tiny.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="gallery-grid" id="dyn-gallery">
+                        <!-- Imagens injetadas via JS -->
+                    </div>
+                </div>
+
+                <!-- Coluna de Logbook -->
+                <div class="detail-logbook">
+                    <div class="log-section">
+                        <h3>Memória do Elemento</h3>
+                        <p id="dyn-memory">Descrição...</p>
+                    </div>
+                    
+                    <div class="log-section">
+                        <h3>Processo de Extração</h3>
+                        <ul class="process-steps" id="dyn-process">
+                            <!-- Passos injetados via JS -->
+                        </ul>
+                    </div>
+
+                    <div class="log-section">
+                        <h3>Comportamento em Laboratório</h3>
+                        <p id="dyn-behavior">Notas de observação...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Principal -->
     <header>
         <img src="logo_com_texto.png" alt="Padrino" class="logo-nav">
         <nav>
             <ul>
                 <li><a href="#inicio" class="nav-link">Gênese</a></li>
                 <li><a href="#alquimista" class="nav-link">O Laboratório</a></li>
-                <li><a href="#experimentos" class="nav-link">Amostras</a></li>
+                <li><a href="amostras.html" class="nav-link">Amostras</a></li>
+                <li><a href="#padrino-plus" class="nav-link">Padrino+</a></li>
             </ul>
         </nav>
     </header>
@@ -575,113 +1043,73 @@
             <h1 class="hero-title">ALQUIMIA BOTÂNICA.</h1>
             <p class="hero-subtitle">A precisão do laboratório revelando a essência mais pura e indomável da terra.</p>
             <div class="gooey-container">
-                <a href="#experimentos" class="btn-organic nav-link">Inspecionar Lotes</a>
+                <a href="amostras.html" class="btn-organic nav-link">Inspecionar Lotes</a>
             </div>
         </div>
     </section>
 
-    <!-- Seção 2: O Alquimista -->
-    <section id="alquimista">
-        <div class="alchemist-grid">
-            <div class="journal-text reveal-element">
-                <h2>O Método Orgânico</h2>
-                <p>Nós não fabricamos bebidas; nós induzimos reações ecológicas em ambientes controlados. Cada garrafa de Padrino é o resultado de uma tensão meticulosamente calculada entre a ciência da destilação e a imprevisibilidade dos elementos crus.</p>
-                <p>Nossos laboratórios são apiários integrados e estufas escuras. Nossos instrumentos são favos de mel cru, caldos em fermentação selvagem, madeiras, raízes e o tempo. Do despertar do hidromel à purificação da cachaça, buscamos a imperfeição perfeita, catalogando os resultados como registros biológicos de um ecossistema engarrafado.</p>
+    <section id="padrino-plus">
+        <div class="plus-header scroll-reveal">
+            <h2>Padrino+</h2>
+            <p>O Círculo Interno do Laboratório</p>
+        </div>
+        
+        <div class="plus-grid scroll-reveal">
+            <div class="plus-item">
+                <span class="plus-item-number">01</span>
+                <h3>Lotes Beta</h3>
+                <p>Receba amostras experimentais antes da validação final. Participe ativamente da definição do perfil sensorial dos nossos próximos lançamentos.</p>
             </div>
-            <div class="journal-image reveal-element">
-                <!-- Imagem abstrata/logo de fundo -->
+            <div class="plus-item">
+                <span class="plus-item-number">02</span>
+                <h3>Dossiês Completos</h3>
+                <p>Acesso irrestrito às anotações do mestre alambiqueiro, registros de falhas e sucessos, e vídeos dos processos de extração não listados ao público.</p>
+            </div>
+            <div class="plus-item">
+                <span class="plus-item-number">03</span>
+                <h3>Reserva Prioritária</h3>
+                <p>Garrafas de edições limitadas (micro-lotes de 50 a 100 unidades) são oferecidas exclusivamente aos membros da sociedade antes do catálogo aberto.</p>
+            </div>
+        </div>
+
+        <div class="gooey-container scroll-reveal">
+            <button class="btn-organic inverse" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;">Solicitar Admissão</button>
+        </div>
+    </section>
+
+    <section id="historia">
+        <div class="history-wrapper">
+            <div class="history-content scroll-reveal">
+                <div class="section-title" style="text-align: left; margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; letter-spacing: 2px;">Memória Botânica</h2>
+                    <div style="width: 50px; height: 2px; background: var(--text-color); margin-top: 1rem;"></div>
+                </div>
+                <p>O Padrino nasceu da insatisfação com a assepsia da indústria de bebidas moderna. Em 2019, isolamos uma pequena estufa no interior de Goiás não para criar algo novo, mas para permitir que o antigo se manifestasse sem interrupções.</p>
+                <p>Começamos resgatando receitas ancestrais de hidromel consumidas antes da industrialização do açúcar, e logo aplicamos a mesma filosofia ao maquinário de destilação de cobre do século passado. Percebemos que o erro, a oxidação controlada e a levedura indígena eram nossos maiores ativos.</p>
+                <p>Hoje, nossa propriedade abriga colmeias selvagens, tanques de inox e tonéis de madeiras esquecidas pelo tempo. Somos tradutores de um ecossistema, engarrafando a tensão entre o controle científico e a desordem da natureza.</p>
+            </div>
+            <div class="history-gallery scroll-reveal">
+                <img src="labtest.jpg" alt="Laboratório Antigo" class="history-img-main">
+                <img src="apiariotest.jpg" alt="Detalhe Botânico" class="history-img-secondary">
             </div>
         </div>
     </section>
 
-    <!-- Seção 3: Catálogo -->
-    <section id="experimentos">
-        <h2 class="section-title">Lotes Catalogados</h2>
-
-        <!-- Experimento 01 -->
-        <div class="experiment-card scroll-reveal">
-            <div class="experiment-visual">
-                <!-- Usando o logo sem texto como representação visual abstrata da garrafa/líquido -->
-                <img src="logo_sem_texto.png" alt="Garrafa Experimento 01" style="filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));">
-            </div>
-            <div class="technical-label">
-                <div class="label-header-txt">
-                    <span>PADRINO</span>
-                    <span style="font-size: 0.8rem; font-weight: normal; margin-top:auto;">Experiências Líquidas</span>
-                </div>
-                
-                <div class="label-grid-data">
-                    <div class="label-row"><span class="label-key">BEBIDA:</span><span class="label-value">Destilado de Cana (Cachaça)</span></div>
-                    <div class="label-row"><span class="label-key">ESTILO:</span><span class="label-value">Herbáceo / Amadeirado</span></div>
-                    <div class="label-row"><span class="label-key">LOTE:</span><span class="label-value">#042-ALFA</span></div>
-                    <div class="label-row"><span class="label-key">GARRAFA:</span><span class="label-value">012/150</span></div>
-                    <div class="label-row"><span class="label-key">ABV:</span><span class="label-value">48.0%</span></div>
-                    <div class="label-row"><span class="label-key">TEMP:</span><span class="label-value">18°C</span></div>
-                    
-                    <div class="label-row label-full-row"><span class="label-key">BASE:</span><span class="label-value">Mosto de cana-de-açúcar de corte manual, fermentação selvagem.</span></div>
-                    <div class="label-row label-full-row"><span class="label-key">ADIÇÕES:</span><span class="label-value">Infusão a frio de botânicos nativos, repouso em tosta forte.</span></div>
-                    
-                    <div class="checkbox-group">
-                        <p>ESTÁGIO:</p>
-                        <div class="check-items">
-                            <div class="check-item"><span class="box"></span> exploração</div>
-                            <div class="check-item"><span class="box"></span> ajuste</div>
-                            <div class="check-item"><span class="box checked"></span> validação</div>
-                            <div class="check-item"><span class="box"></span> consolidação</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sensorial-notes">
-                    <strong>ANÁLISE SENSORIAL:</strong> O vigor da cana crua cortado pelo amargor terroso de raízes frescas. O final traz a adstringência profunda da madeira brasileira tostada. Uma expressão selvagem e destilada da terra.
-                </div>
-
-                <div class="purchase-action gooey-container">
-                    <a href="#" class="btn-organic" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;">Requisitar Amostra</a>
-                </div>
-            </div>
+    <section id="equipe">
+        <div class="team-title scroll-reveal">
+            <h2>Quem esta por tras de tudo</h2>
+            <div style="width: 50px; height: 2px; background: var(--text-color); margin: 1rem auto 0; border-radius: 50%;"></div>
         </div>
 
-        <!-- Experimento 02 -->
-        <div class="experiment-card scroll-reveal">
-            <div class="experiment-visual">
-                <img src="logo_sem_texto.png" alt="Garrafa Experimento 02" style="filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)) sepia(1) hue-rotate(-50deg);">
-            </div>
-            <div class="technical-label">
-                <div class="label-header-txt">
-                    <span>PADRINO</span>
-                    <span style="font-size: 0.8rem; font-weight: normal; margin-top:auto;">Experiências Líquidas</span>
+        <div class="team-grid">
+            <!-- Único Membro -->
+            <div class="team-member scroll-reveal">
+                <div class="team-photo">
+                    <img src="Padrino.jpeg" alt="Retrato do Alquimista">
                 </div>
-                
-                <div class="label-grid-data">
-                    <div class="label-row"><span class="label-key">BEBIDA:</span><span class="label-value">Hidromel Botânico</span></div>
-                    <div class="label-row"><span class="label-key">ESTILO:</span><span class="label-value">Floral Escuro / Denso</span></div>
-                    <div class="label-row"><span class="label-key">LOTE:</span><span class="label-value">#018-BETA</span></div>
-                    <div class="label-row"><span class="label-key">GARRAFA:</span><span class="label-value">089/200</span></div>
-                    <div class="label-row"><span class="label-key">ABV:</span><span class="label-value">14.5%</span></div>
-                    <div class="label-row"><span class="label-key">TEMP:</span><span class="label-value">10°C</span></div>
-                    
-                    <div class="label-row label-full-row"><span class="label-key">BASE:</span><span class="label-value">Mel de florada de jabuticabeiras (apiário consorciado ao pomar).</span></div>
-                    <div class="label-row label-full-row"><span class="label-key">ADIÇÕES:</span><span class="label-value">Leveduras selvagens isoladas da casca da própria jabuticaba.</span></div>
-                    
-                    <div class="checkbox-group">
-                        <p>ESTÁGIO:</p>
-                        <div class="check-items">
-                            <div class="check-item"><span class="box"></span> exploração</div>
-                            <div class="check-item"><span class="box"></span> ajuste</div>
-                            <div class="check-item"><span class="box"></span> validação</div>
-                            <div class="check-item"><span class="box checked"></span> consolidação</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sensorial-notes">
-                    <strong>ANÁLISE SENSORIAL:</strong> Textura licorosa. O dulçor inicial do mel silvestre é subitamente interceptado por uma acidez vibrante e notas tânicas que remetem à casca da jabuticaba madura. Um néctar noturno e complexo.
-                </div>
-
-                <div class="purchase-action gooey-container">
-                    <a href="#" class="btn-organic" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;">Requisitar Amostra</a>
-                </div>
+                <span class="team-role">Alquimista Louco</span>
+                <h3 class="team-name">João V.</h3>
+                <p class="team-bio" style="max-width: 400px;">Eng.Químico de formação e Apiário por obsessão. Responsável pela catalogação dos Mels e pelas destilação experimental.</p>
             </div>
         </div>
     </section>
@@ -691,12 +1119,59 @@
         <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">Consuma as descobertas com cautela.</p>
     </footer>
 
-    <!-- Scripts de Interação -->
     <script>
+        // BANCO DE DADOS DINÂMICO DAS BEBIDAS
+        const drinkDatabase = {
+            'cachaca': {
+                title: 'Destilado de Cana',
+                subtitle: 'LOTE #042-ALFA | Expressão Selvagem',
+                bgImg: 'https://images.unsplash.com/photo-1596484552993-8bf680cf3b15?q=80&w=1920&auto=format&fit=crop', // Imagem de fundo da cana/natureza
+                videoSrc: 'https://cdn.pixabay.com/video/2021/08/11/84687-587474278_tiny.mp4', 
+                memory: 'O vigor da cana crua cortado pelo amargor terroso de raízes frescas. O final traz a adstringência profunda da madeira brasileira tostada. O objetivo não foi domar a planta, mas isolar sua agressividade de forma potável.',
+                process: [
+                    'Colheita manual na aurora para evitar estresse térmico da planta.',
+                    'Moagem a frio e decantação natural sem aditivos químicos.',
+                    'Fermentação selvagem utilizando leveduras do próprio canavial (4 a 6 dias).',
+                    'Destilação lenta em alambique de cobre martelado, descartando generosamente cabeça e cauda.',
+                    'Infusão a frio com raízes nativas e repouso em barril de tosta severa.'
+                ],
+                behavior: 'Reage agressivamente a mudanças de temperatura. A 18°C os óleos essenciais ficam suspensos perfeitamente. Apresentou leve turbidez natural (não filtrado a frio para preservar ésteres).',
+                images: [
+                    'https://placehold.co/400x400/222/EBE6DC?text=Alambique',
+                    'https://placehold.co/400x400/222/EBE6DC?text=Raizes',
+                    'https://placehold.co/400x400/222/EBE6DC?text=Tosta',
+                    'https://placehold.co/400x400/222/EBE6DC?text=Engarrafamento'
+                ]
+            },
+            'hidromel': {
+                title: 'Hidromel Botânico',
+                subtitle: 'LOTE #018-BETA | Néctar Noturno',
+                bgImg: 'https://images.unsplash.com/photo-1587049352847-4d400160d5b7?q=80&w=1920&auto=format&fit=crop', // Imagem de fundo mel/textura
+                videoSrc: 'https://cdn.pixabay.com/video/2019/11/08/28859-372074362_tiny.mp4', 
+                memory: 'Textura licorosa e densa. O dulçor inicial do mel silvestre é subitamente interceptado por uma acidez vibrante e notas tânicas que remetem à casca da jabuticaba madura e chão de floresta úmido.',
+                process: [
+                    'Coleta restrita ao apiário consorciado ao pomar de jabuticabeiras durante o pico da florada.',
+                    'Diluição do mel cru em água de poço artesiano não tratada quimicamente.',
+                    'Inoculação com cepas de leveduras isoladas da casca da própria jabuticaba.',
+                    'Fermentação primária longa e tumultuosa em ambiente escuro.',
+                    'Maturação sobre as borras (sur lie) por 8 meses para ganho de textura e complexidade.'
+                ],
+                behavior: 'Estabilidade alcançada após o 6º mês. Formação de película biológica protetora na superfície durante o repouso. Coloração púrpura profunda oxidando para tons atijolados nas bordas.',
+                images: [
+                    'https://placehold.co/400x400/111/EBE6DC?text=Apiario',
+                    'https://placehold.co/400x400/111/EBE6DC?text=Mel+Cru',
+                    'https://placehold.co/400x400/111/EBE6DC?text=Fermentacao',
+                    'https://placehold.co/400x400/111/EBE6DC?text=Borras'
+                ]
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const cursor = document.getElementById('custom-cursor');
-            const interactables = document.querySelectorAll('a, button, .btn-organic');
+            const interactables = document.querySelectorAll('a, button, .btn-organic, .clickable-drink');
             const overlay = document.getElementById('transition-overlay');
+            const detailView = document.getElementById('detail-view');
+            const btnCloseDetail = document.getElementById('close-detail');
 
             // 1. Lógica do Cursor Customizado
             document.addEventListener('mousemove', (e) => {
@@ -705,68 +1180,142 @@
             });
 
             interactables.forEach(item => {
-                item.addEventListener('mouseenter', () => {
-                    document.body.classList.add('hovering');
-                });
-                item.addEventListener('mouseleave', () => {
-                    document.body.classList.remove('hovering');
-                });
+                item.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                item.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
             });
-
-            // 2. Transição Líquida de Navegação Interna
+            // 2. Transição Líquida de Navegação (Atualizado para Múltiplas Páginas)
             const navLinks = document.querySelectorAll('.nav-link');
-            
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    e.preventDefault();
                     const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetId) {
+                        e.preventDefault();
+                        // O líquido sobe
+                        overlay.classList.add('active');
+                        overlay.classList.remove('leaving');
 
-                    // Inicia animação do líquido subindo
-                    overlay.classList.add('active');
-                    overlay.classList.remove('leaving');
-
-                    // Aguarda o líquido cobrir a tela
-                    setTimeout(() => {
-                        // Faz o scroll instantâneo enquanto a tela está coberta
-                        window.scrollTo({
-                            top: targetElement.offsetTop,
-                            behavior: 'auto'
-                        });
-
-                        // Inicia o líquido descendo
-                        overlay.classList.remove('active');
-                        overlay.classList.add('leaving');
-                        
-                        // Reseta as classes após a transição
                         setTimeout(() => {
-                            overlay.classList.remove('leaving');
-                        }, 1000);
-
-                    }, 800); // Tempo correspondente à transição CSS do topo
+                            if (targetId.startsWith('#')) {
+                                // Rola na mesma página
+                                const targetElement = document.querySelector(targetId);
+                                if (targetElement) {
+                                    window.scrollTo({ top: targetElement.offsetTop, behavior: 'auto' });
+                                    overlay.classList.remove('active');
+                                    overlay.classList.add('leaving');
+                                    setTimeout(() => overlay.classList.remove('leaving'), 1000);
+                                }
+                            } else {
+                                // Redireciona para a página nova (amostras.html)
+                                window.location.href = targetId;
+                            }
+                        }, 800); // Tempo para o líquido cobrir a tela toda
+                    }
                 });
             });
 
-            // 3. Scroll Reveal (Animação de surgimento das garrafas/fichas)
-            const revealElements = document.querySelectorAll('.scroll-reveal');
+            // 3. Lógica da Página de Detalhes (Single Page App Behavior)
+            const drinkTriggers = document.querySelectorAll('.clickable-drink');
             
-            const revealOptions = {
-                threshold: 0.2, // Dispara quando 20% do elemento está visível
-                rootMargin: "0px 0px -100px 0px"
-            };
+            drinkTriggers.forEach(trigger => {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const drinkId = this.getAttribute('data-drink');
+                    openDrinkDetails(drinkId);
+                });
+            });
 
+            btnCloseDetail.addEventListener('click', closeDrinkDetails);
+
+            function openDrinkDetails(id) {
+            const data = drinkDatabase[id];
+            if(!data) return;
+
+            // Animação de entrada do overlay
+            overlay.classList.add('active');
+            overlay.classList.remove('leaving');
+
+            setTimeout(() => {
+                // Popula os dados enquanto a tela está preta
+                document.getElementById('dyn-title').innerText = data.title;
+                document.getElementById('dyn-subtitle').innerText = data.subtitle;
+                document.getElementById('dyn-memory').innerText = data.memory;
+                document.getElementById('dyn-behavior').innerText = data.behavior;
+                
+                // INJETA A IMAGEM DE FUNDO
+                document.getElementById('dyn-title-bg').style.backgroundImage = `url('${data.bgImg}')`;
+                
+                const videoEl = document.getElementById('dyn-video');
+                videoEl.src = data.videoSrc;
+                videoEl.load();
+
+                const processList = document.getElementById('dyn-process');
+                processList.innerHTML = '';
+                data.process.forEach(step => {
+                    const li = document.createElement('li');
+                    li.innerText = step;
+                    processList.appendChild(li);
+                });
+
+                const gallery = document.getElementById('dyn-gallery');
+                gallery.innerHTML = '';
+                data.images.forEach(imgUrl => {
+                    const div = document.createElement('div');
+                    div.className = 'gallery-item';
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.alt = 'Registro de Laboratório';
+                    div.appendChild(img);
+                    gallery.appendChild(div);
+                });
+
+                // Mostra a view e rola pro topo dela
+                detailView.classList.add('active');
+                detailView.scrollTo(0,0);
+                
+                // Esconde a rolagem do body principal
+                document.body.style.overflow = 'hidden';
+
+                // Animação de saída do overlay
+                overlay.classList.remove('active');
+                overlay.classList.add('leaving');
+                setTimeout(() => overlay.classList.remove('leaving'), 1000);
+            }, 800); // Tempo do líquido subir
+        }
+
+            function closeDrinkDetails() {
+                // Animação de entrada do overlay
+                overlay.classList.add('active');
+                overlay.classList.remove('leaving');
+
+                setTimeout(() => {
+                    // Esconde a view
+                    detailView.classList.remove('active');
+                    document.body.style.overflow = ''; // Restaura rolagem
+                    
+                    // Pausa vídeo se estiver tocando
+                    document.getElementById('dyn-video').pause();
+
+                    // Animação de saída do overlay revelando a página principal
+                    overlay.classList.remove('active');
+                    overlay.classList.add('leaving');
+                    setTimeout(() => overlay.classList.remove('leaving'), 1000);
+                }, 800);
+            }
+
+           
+            const revealElements = document.querySelectorAll('.scroll-reveal');
+            const revealOptions = { threshold: 0.2, rootMargin: "0px 0px -100px 0px" };
             const revealObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
-                        observer.unobserve(entry.target); // Anima apenas uma vez
+                        observer.unobserve(entry.target);
                     }
                 });
             }, revealOptions);
 
-            revealElements.forEach(el => {
-                revealObserver.observe(el);
-            });
+            revealElements.forEach(el => revealObserver.observe(el));
         });
     </script>
 </body>
